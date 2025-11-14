@@ -69,8 +69,12 @@
 <div class="grid">
     @forelse($students as $student)
         <div class="student-card">
-            <div style="width: 100%; height: 200px; background-color: #e0e0e0; border-radius: 4px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #999;">
-                画像
+            <div style="width: 100%; height: 200px; border-radius: 4px; margin-bottom: 10px; overflow: hidden; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center;">
+                @if($student->image)
+                    <img src="{{ asset($student->image) }}" alt="{{ $student->name_english }}" style="width: 100%; height: 100%; object-fit: cover;">
+                @else
+                    <span style="color: #999;">画像</span>
+                @endif
             </div>
             <div class="student-info">
                 <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px;">

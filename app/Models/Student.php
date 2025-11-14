@@ -28,10 +28,11 @@ class Student extends Model
         'status',
         'applied',
         'participated',
+        'image',
     ];
 
     protected $casts = [
-        'oc_reservation_date' => 'date',
+        'oc_reservation_date' => 'datetime',
         'online' => 'boolean',
         'oc_attendance' => 'boolean',
     ];

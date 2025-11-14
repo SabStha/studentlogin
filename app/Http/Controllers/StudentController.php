@@ -48,14 +48,36 @@ class StudentController extends Controller
             'home_country_education' => 'nullable|string',
             'referrer' => 'nullable|string|max:255',
             'oc_attendance' => 'boolean',
-            'oc_reservation_date' => 'nullable|date',
+            'oc_reservation_date' => 'nullable',
+            'oc_reservation_time' => 'nullable',
+            'oc_reservation_ampm' => 'nullable|in:AM,PM',
             'online' => 'boolean',
             'enrollment_year' => 'nullable|integer',
             'status' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $validated['oc_attendance'] = $request->has('oc_attendance');
         $validated['online'] = $request->has('online');
+
+        // Handle date and time combination
+        if ($request->filled('oc_reservation_date') && $request->filled('oc_reservation_time')) {
+            $date = $request->oc_reservation_date;
+            $time = $request->oc_reservation_time; // Already converted to 24-hour format by JavaScript
+            $validated['oc_reservation_date'] = $date . ' ' . $time . ':00';
+        } elseif ($request->filled('oc_reservation_date')) {
+            $validated['oc_reservation_date'] = $request->oc_reservation_date;
+        } else {
+            $validated['oc_reservation_date'] = null;
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('storage/students'), $imageName);
+            $validated['image'] = 'storage/students/' . $imageName;
+        }
 
         Student::create($validated);
 
@@ -83,14 +105,41 @@ class StudentController extends Controller
             'home_country_education' => 'nullable|string',
             'referrer' => 'nullable|string|max:255',
             'oc_attendance' => 'boolean',
-            'oc_reservation_date' => 'nullable|date',
+            'oc_reservation_date' => 'nullable',
+            'oc_reservation_time' => 'nullable',
+            'oc_reservation_ampm' => 'nullable|in:AM,PM',
             'online' => 'boolean',
             'enrollment_year' => 'nullable|integer',
             'status' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $validated['oc_attendance'] = $request->has('oc_attendance');
         $validated['online'] = $request->has('online');
+
+        // Handle date and time combination
+        if ($request->filled('oc_reservation_date') && $request->filled('oc_reservation_time')) {
+            $date = $request->oc_reservation_date;
+            $time = $request->oc_reservation_time; // Already converted to 24-hour format by JavaScript
+            $validated['oc_reservation_date'] = $date . ' ' . $time . ':00';
+        } elseif ($request->filled('oc_reservation_date')) {
+            $validated['oc_reservation_date'] = $request->oc_reservation_date;
+        } else {
+            $validated['oc_reservation_date'] = null;
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($student->image && file_exists(public_path($student->image))) {
+                unlink(public_path($student->image));
+            }
+            
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('storage/students'), $imageName);
+            $validated['image'] = 'storage/students/' . $imageName;
+        }
 
         $student->update($validated);
 
@@ -99,6 +148,11 @@ class StudentController extends Controller
 
     public function destroy(Student $student)
     {
+        // Delete image if exists
+        if ($student->image && file_exists(public_path($student->image))) {
+            unlink(public_path($student->image));
+        }
+        
         $student->delete();
         return redirect()->route('dashboard')->with('success', '生徒が正常に削除されました。');
     }

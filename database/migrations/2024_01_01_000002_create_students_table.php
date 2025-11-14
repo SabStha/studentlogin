@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('home_country_education')->nullable();
             $table->string('referrer')->nullable();
             $table->boolean('oc_attendance')->default(false);
-            $table->date('oc_reservation_date')->nullable();
+            $table->dateTime('oc_reservation_date')->nullable();
             $table->boolean('online')->default(false);
             $table->integer('enrollment_year')->nullable();
             $table->string('status')->default('試験待ち'); // 試験待ち, 1年合格, 2年合格, 不合格

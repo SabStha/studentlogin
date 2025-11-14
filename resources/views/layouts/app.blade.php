@@ -37,6 +37,54 @@
             display: flex;
             gap: 20px;
         }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: #0066cc;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            border-bottom: 2px solid #0066cc;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        .mobile-menu a {
+            display: block;
+            padding: 15px 30px;
+            color: #0066cc;
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .mobile-menu a:hover {
+            background-color: #f5f5f5;
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .header {
+                position: relative;
+            }
+        }
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -195,6 +243,17 @@
             <a href="{{ route('schools.index') }}">学校検索</a>
             <a href="{{ route('schools.create') }}">学校登録</a>
         </div>
+        <div class="hamburger" id="hamburger-menu" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="mobile-menu" id="mobile-menu">
+            <a href="{{ route('dashboard') }}" onclick="closeMobileMenu()">生徒検索</a>
+            <a href="{{ route('students.create') }}" onclick="closeMobileMenu()">生徒登録</a>
+            <a href="{{ route('schools.index') }}" onclick="closeMobileMenu()">学校検索</a>
+            <a href="{{ route('schools.create') }}" onclick="closeMobileMenu()">学校登録</a>
+        </div>
     </div>
     @endauth
 
@@ -217,6 +276,28 @@
 
         @yield('content')
     </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.remove('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const hamburger = document.getElementById('hamburger-menu');
+            const menu = document.getElementById('mobile-menu');
+            
+            if (!hamburger.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
 
