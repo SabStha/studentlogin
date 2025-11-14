@@ -61,11 +61,11 @@ class StudentController extends Controller
         $validated['online'] = $request->has('online');
 
         // Handle date and time combination
-        if ($request->filled('oc_reservation_date') && $request->filled('oc_reservation_time')) {
+        if ($request->filled('oc_reservation_date') && $request->filled('oc_reservation_time') && $request->oc_reservation_date !== 'null' && $request->oc_reservation_time !== 'null') {
             $date = $request->oc_reservation_date;
             $time = $request->oc_reservation_time; // Already converted to 24-hour format by JavaScript
             $validated['oc_reservation_date'] = $date . ' ' . $time . ':00';
-        } elseif ($request->filled('oc_reservation_date')) {
+        } elseif ($request->filled('oc_reservation_date') && $request->oc_reservation_date !== 'null') {
             $validated['oc_reservation_date'] = $request->oc_reservation_date;
         } else {
             $validated['oc_reservation_date'] = null;
@@ -74,8 +74,15 @@ class StudentController extends Controller
         // Handle image upload
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('storage/students'), $imageName);
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            
+            // Ensure directory exists
+            $uploadPath = public_path('storage/students');
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            
+            $image->move($uploadPath, $imageName);
             $validated['image'] = 'storage/students/' . $imageName;
         }
 
@@ -118,11 +125,11 @@ class StudentController extends Controller
         $validated['online'] = $request->has('online');
 
         // Handle date and time combination
-        if ($request->filled('oc_reservation_date') && $request->filled('oc_reservation_time')) {
+        if ($request->filled('oc_reservation_date') && $request->filled('oc_reservation_time') && $request->oc_reservation_date !== 'null' && $request->oc_reservation_time !== 'null') {
             $date = $request->oc_reservation_date;
             $time = $request->oc_reservation_time; // Already converted to 24-hour format by JavaScript
             $validated['oc_reservation_date'] = $date . ' ' . $time . ':00';
-        } elseif ($request->filled('oc_reservation_date')) {
+        } elseif ($request->filled('oc_reservation_date') && $request->oc_reservation_date !== 'null') {
             $validated['oc_reservation_date'] = $request->oc_reservation_date;
         } else {
             $validated['oc_reservation_date'] = null;
@@ -132,12 +139,19 @@ class StudentController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($student->image && file_exists(public_path($student->image))) {
-                unlink(public_path($student->image));
+                @unlink(public_path($student->image));
             }
             
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('storage/students'), $imageName);
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            
+            // Ensure directory exists
+            $uploadPath = public_path('storage/students');
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            
+            $image->move($uploadPath, $imageName);
             $validated['image'] = 'storage/students/' . $imageName;
         }
 
