@@ -23,17 +23,117 @@ class DashboardController extends Controller
             });
         }
 
+        // Name search
+        if ($request->filled('name')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name_english', 'like', "%{$request->name}%")
+                  ->orWhere('name_kana', 'like', "%{$request->name}%");
+            });
+        }
+
         // Enrollment year filter
         if ($request->filled('enrollment_year')) {
             $query->where('enrollment_year', $request->enrollment_year);
         }
 
-        // Status filter
+        // Status filter (basic)
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $students = $query->paginate(12);
+        // Detailed status filters (checkboxes)
+        $statusFilters = [];
+        if ($request->has('status_2year')) {
+            $statusFilters[] = '2年合格';
+        }
+        if ($request->has('status_1year')) {
+            $statusFilters[] = '1年合格';
+        }
+        if ($request->has('status_fail')) {
+            $statusFilters[] = '不合格';
+        }
+        if ($request->has('status_waiting')) {
+            $statusFilters[] = '試験待ち';
+        }
+        if (!empty($statusFilters)) {
+            $query->whereIn('status', $statusFilters);
+        }
+
+        // Nationality filter
+        if ($request->filled('nationality')) {
+            $query->where('nationality', $request->nationality);
+        }
+
+        // Gender filter
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // JLPT level filter
+        if ($request->filled('jlpt_level')) {
+            $query->where('jlpt_level', $request->jlpt_level);
+        }
+
+        // School filter
+        if ($request->filled('school_id')) {
+            $query->where('school_id', $request->school_id);
+        }
+
+        // OC Reservation Date filter
+        if ($request->filled('oc_reservation_date')) {
+            $query->whereDate('oc_reservation_date', $request->oc_reservation_date);
+        }
+
+        // Referrer filter
+        if ($request->filled('referrer')) {
+            $query->where('referrer', $request->referrer);
+        }
+
+        // Student number filter
+        if ($request->filled('student_number')) {
+            $query->where('student_number', 'like', "%{$request->student_number}%");
+        }
+
+        // Japanese evaluation filter (if field exists)
+        if ($request->filled('japanese_evaluation')) {
+            $query->where('japanese_evaluation', 'like', "%{$request->japanese_evaluation}%");
+        }
+
+        // Total score filter (if field exists)
+        if ($request->filled('total_score')) {
+            $query->where('total_score', $request->total_score);
+        }
+
+        // Nationality empty filter
+        if ($request->has('nationality_empty')) {
+            $query->where(function($q) {
+                $q->whereNull('nationality')->orWhere('nationality', '');
+            });
+        }
+
+        // School empty filter
+        if ($request->has('school_empty')) {
+            $query->whereNull('school_id');
+        }
+
+        // Absent only filter (assuming this means oc_attendance = false)
+        if ($request->has('absent_only')) {
+            $query->where('oc_attendance', false);
+        }
+
+        // Applicants only filter
+        if ($request->has('applicants_only')) {
+            $query->where('applied', true);
+        }
+
+        // Sort by name
+        if ($request->has('sort_by_name')) {
+            $query->orderBy('name_english', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $students = $query->paginate(12)->appends($request->query());
 
         // Statistics
         $appliedCount = Student::where('applied', true)->count();
@@ -51,7 +151,23 @@ class DashboardController extends Controller
             $enrollmentYears = $enrollmentYears->push(2026)->sortDesc()->values();
         }
 
-        return view('dashboard', compact('students', 'appliedCount', 'participatedCount', 'enrollmentYears'));
+        // Get unique values for dropdowns
+        $nationalities = Student::select('nationality')
+            ->distinct()
+            ->whereNotNull('nationality')
+            ->where('nationality', '!=', '')
+            ->orderBy('nationality', 'asc')
+            ->pluck('nationality');
+
+        $referrers = Student::select('referrer')
+            ->distinct()
+            ->whereNotNull('referrer')
+            ->where('referrer', '!=', '')
+            ->orderBy('referrer', 'asc')
+            ->pluck('referrer');
+
+        $schools = School::orderBy('name', 'asc')->get();
+
+        return view('dashboard', compact('students', 'appliedCount', 'participatedCount', 'enrollmentYears', 'nationalities', 'referrers', 'schools'));
     }
 }
-
