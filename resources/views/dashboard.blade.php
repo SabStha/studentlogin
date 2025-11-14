@@ -5,16 +5,40 @@
 @section('content')
 <h1 style="font-size: 28px; margin-bottom: 20px;">生徒検索</h1>
 
-<!-- Search Button Bar -->
-<div style="background-color: #0066cc; padding: 12px; margin-bottom: 20px; text-align: center; border-radius: 4px;">
-    <button type="button" id="toggle-search" style="background: none; border: none; color: white; font-size: 16px; cursor: pointer; font-weight: bold;">検索</button>
-</div>
-
-<!-- Search Form (Initially Hidden) -->
-<div id="search-form-container" style="display: none; background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
+<!-- Search Form (Always Visible) -->
+<div class="search-form" style="background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
     <form method="GET" action="{{ route('dashboard') }}" id="search-form">
-        <!-- Detailed Search Header -->
-        <div style="text-align: center; margin-bottom: 20px;">
+        <!-- Basic Search Fields (Always Visible) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+                <label for="keyword">キーワード</label>
+                <input type="text" name="keyword" id="keyword" value="{{ request('keyword') }}" placeholder="キーワード" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+
+            <div class="form-group">
+                <label for="enrollment_year">入学年度</label>
+                <select name="enrollment_year" id="enrollment_year" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">選択してください</option>
+                    @foreach($enrollmentYears as $year)
+                        <option value="{{ $year }}" {{ request('enrollment_year') == $year ? 'selected' : '' }}>{{ $year }}年</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="status">ステータス</label>
+                <select name="status" id="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">すべて</option>
+                    <option value="2年合格" {{ request('status') == '2年合格' ? 'selected' : '' }}>2年合格</option>
+                    <option value="1年合格" {{ request('status') == '1年合格' ? 'selected' : '' }}>1年合格</option>
+                    <option value="不合格" {{ request('status') == '不合格' ? 'selected' : '' }}>不合格</option>
+                    <option value="試験待ち" {{ request('status') == '試験待ち' ? 'selected' : '' }}>試験待ち</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Detailed Search Header (Clickable) -->
+        <div style="text-align: center; margin-bottom: 15px;">
             <h2 id="toggle-detailed-search" style="color: #0066cc; text-decoration: underline; cursor: pointer; font-size: 18px; margin: 0; display: inline-block;">詳細検索</h2>
         </div>
 
@@ -146,50 +170,26 @@
                 </div>
             </div>
 
-            <!-- Search Clear and Search Buttons -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <!-- Search Clear Link -->
+            <div style="text-align: right; margin-top: 15px;">
                 <a href="{{ route('dashboard') }}" style="color: #0066cc; text-decoration: underline; cursor: pointer;">検索クリア</a>
-                <button type="submit" class="btn btn-primary" style="background-color: #0066cc; color: white; border: none; padding: 12px 40px; border-radius: 4px; cursor: pointer; font-size: 16px;">検索</button>
             </div>
         </div>
 
-        <!-- Basic Search Fields -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
-            <div class="form-group">
-                <label for="keyword">キーワード</label>
-                <input type="text" name="keyword" id="keyword" value="{{ request('keyword') }}" placeholder="キーワード" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
-
-            <div class="form-group">
-                <label for="enrollment_year">入学年度</label>
-                <select name="enrollment_year" id="enrollment_year" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">選択してください</option>
-                    @foreach($enrollmentYears as $year)
-                        <option value="{{ $year }}" {{ request('enrollment_year') == $year ? 'selected' : '' }}>{{ $year }}年</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="status">ステータス</label>
-                <select name="status" id="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">すべて</option>
-                    <option value="2年合格" {{ request('status') == '2年合格' ? 'selected' : '' }}>2年合格</option>
-                    <option value="1年合格" {{ request('status') == '1年合格' ? 'selected' : '' }}>1年合格</option>
-                    <option value="不合格" {{ request('status') == '不合格' ? 'selected' : '' }}>不合格</option>
-                    <option value="試験待ち" {{ request('status') == '試験待ち' ? 'selected' : '' }}>試験待ち</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="text-align: center;">
+        <!-- Main Search Button -->
+        <div style="text-align: center; margin-top: 20px;">
             <button type="submit" class="btn btn-primary" style="background-color: #0066cc; color: white; border: none; padding: 12px 40px; border-radius: 4px; cursor: pointer; font-size: 16px;">検索</button>
         </div>
     </form>
 </div>
 
-<!-- Summary Section -->
-<div style="background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
+<!-- Summary Section Header (Clickable) -->
+<div style="text-align: center; margin-bottom: 15px;">
+    <h2 id="toggle-summary" style="color: #0066cc; text-decoration: underline; cursor: pointer; font-size: 18px; margin: 0; display: inline-block;">サマリー</h2>
+</div>
+
+<!-- Summary Section (Initially Hidden) -->
+<div id="summary-section" style="display: none; background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="font-size: 24px; margin: 0;">サマリー</h2>
         <button type="button" id="download-summary" class="btn" style="background-color: #ff69b4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">サマリーダウンロード</button>
@@ -313,16 +313,6 @@
 </div>
 
 <script>
-// Toggle search form
-document.getElementById('toggle-search').addEventListener('click', function() {
-    const searchForm = document.getElementById('search-form-container');
-    if (searchForm.style.display === 'none') {
-        searchForm.style.display = 'block';
-    } else {
-        searchForm.style.display = 'none';
-    }
-});
-
 // Toggle detailed search
 document.getElementById('toggle-detailed-search').addEventListener('click', function() {
     const detailedSearch = document.getElementById('detailed-search');
@@ -333,12 +323,19 @@ document.getElementById('toggle-detailed-search').addEventListener('click', func
     }
 });
 
-// Show search form if any search parameters exist
-@if(request()->hasAny(['keyword', 'enrollment_year', 'status', 'oc_reservation_date', 'name', 'nationality', 'gender', 'jlpt_level', 'school_id', 'japanese_evaluation', 'total_score', 'referrer', 'student_number', 'sort_by_name', 'nationality_empty', 'school_empty', 'absent_only', 'applicants_only', 'status_2year', 'status_1year', 'status_fail', 'status_waiting']))
-    document.getElementById('search-form-container').style.display = 'block';
-    @if(request()->hasAny(['oc_reservation_date', 'name', 'nationality', 'gender', 'jlpt_level', 'school_id', 'japanese_evaluation', 'total_score', 'referrer', 'student_number', 'sort_by_name', 'nationality_empty', 'school_empty', 'absent_only', 'applicants_only', 'status_2year', 'status_1year', 'status_fail', 'status_waiting']))
-        document.getElementById('detailed-search').style.display = 'block';
-    @endif
+// Toggle summary section
+document.getElementById('toggle-summary').addEventListener('click', function() {
+    const summarySection = document.getElementById('summary-section');
+    if (summarySection.style.display === 'none') {
+        summarySection.style.display = 'block';
+    } else {
+        summarySection.style.display = 'none';
+    }
+});
+
+// Show detailed search if any detailed search field has a value
+@if(request()->hasAny(['oc_reservation_date', 'name', 'nationality', 'gender', 'jlpt_level', 'school_id', 'japanese_evaluation', 'total_score', 'referrer', 'student_number', 'sort_by_name', 'nationality_empty', 'school_empty', 'absent_only', 'applicants_only', 'status_2year', 'status_1year', 'status_fail', 'status_waiting']))
+    document.getElementById('detailed-search').style.display = 'block';
 @endif
 
 // Summary download
