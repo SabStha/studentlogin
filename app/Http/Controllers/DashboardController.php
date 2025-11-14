@@ -335,31 +335,39 @@ class DashboardController extends Controller
             ];
             $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($totalStyle);
 
-            // Add spacing
-            $row += 2;
+            // Auto-size columns
+            $sheet->getColumnDimension('A')->setAutoSize(true);
+            $sheet->getColumnDimension('B')->setAutoSize(true);
+            $sheet->getColumnDimension('C')->setAutoSize(true);
 
-            // Set subtitle for school
-            $sheet->setCellValue('A' . $row, '学校別');
-            $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-            $row++;
-
-            // Set headers for school table
-            $sheet->setCellValue('A' . $row, '学校');
-            $sheet->setCellValue('B' . $row, '申込人数');
-            $sheet->setCellValue('C' . $row, '参加人数');
+            // Sheet 2: 学校別 (By School)
+            $sheet2 = $spreadsheet->createSheet();
+            $sheet2->setTitle('学校別');
             
-            // Style headers
-            $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($headerStyle);
-            $row++;
-
+            // Set title
+            $sheet2->setCellValue('A1', 'オープンキャンパスサマリー');
+            $sheet2->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+            
+            // Set subtitle
+            $sheet2->setCellValue('A2', '学校別');
+            $sheet2->getStyle('A2')->getFont()->setBold(true);
+            
+            // Set date
+            $sheet2->setCellValue('A3', $nextYear . '年度入学 (' . $currentDate . '時点)');
+            
+            // Set headers
+            $sheet2->setCellValue('A4', '学校名');
+            $sheet2->setCellValue('B4', '申込人数');
+            $sheet2->setCellValue('C4', '参加人数');
+            $sheet2->getStyle('A4:C4')->applyFromArray($headerStyle);
+            
             // Add school data
+            $row = 5;
             foreach ($summaryBySchool as $item) {
-                $sheet->setCellValue('A' . $row, $item->school_name ?? '学校未設定');
-                $sheet->setCellValue('B' . $row, $item->applied_count);
-                $sheet->setCellValue('C' . $row, $item->participated_count);
-                
-                // Add borders
-                $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray([
+                $sheet2->setCellValue('A' . $row, $item->school_name ?? '学校未設定');
+                $sheet2->setCellValue('B' . $row, $item->applied_count);
+                $sheet2->setCellValue('C' . $row, $item->participated_count);
+                $sheet2->getStyle('A' . $row . ':C' . $row)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -368,17 +376,151 @@ class DashboardController extends Controller
                 ]);
                 $row++;
             }
+            
+            // Add total row
+            $sheet2->setCellValue('A' . $row, '合計');
+            $sheet2->setCellValue('B' . $row, $totalAppliedSchool);
+            $sheet2->setCellValue('C' . $row, $totalParticipatedSchool);
+            $sheet2->getStyle('A' . $row . ':C' . $row)->applyFromArray($totalStyle);
+            $sheet2->getColumnDimension('A')->setAutoSize(true);
+            $sheet2->getColumnDimension('B')->setAutoSize(true);
+            $sheet2->getColumnDimension('C')->setAutoSize(true);
 
-            // Add total row for school
-            $sheet->setCellValue('A' . $row, '合計');
-            $sheet->setCellValue('B' . $row, $totalAppliedSchool);
-            $sheet->setCellValue('C' . $row, $totalParticipatedSchool);
-            $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($totalStyle);
+            // Sheet 3: 状況 (Status)
+            $sheet3 = $spreadsheet->createSheet();
+            $sheet3->setTitle('状況');
+            
+            // Set title
+            $sheet3->setCellValue('A1', 'オープンキャンパスサマリー');
+            $sheet3->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+            
+            // Set subtitle
+            $sheet3->setCellValue('A2', '状況');
+            $sheet3->getStyle('A2')->getFont()->setBold(true);
+            
+            // Set date
+            $sheet3->setCellValue('A3', $nextYear . '年度入学(' . $currentDate . '時点)');
+            
+            // Set headers
+            $sheet3->setCellValue('A4', '学校名');
+            $sheet3->setCellValue('B4', '学校の片思い');
+            $sheet3->setCellValue('C4', '学生の片思い');
+            $sheet3->setCellValue('D4', '両想い');
+            $sheet3->getStyle('A4:D4')->applyFromArray($headerStyle);
+            
+            // Add status data
+            $row = 5;
+            foreach ($statusData as $item) {
+                $sheet3->setCellValue('A' . $row, $item->school_name ?? '学校未設定');
+                $sheet3->setCellValue('B' . $row, $item->school_unrequited);
+                $sheet3->setCellValue('C' . $row, $item->student_unrequited);
+                $sheet3->setCellValue('D' . $row, $item->mutual);
+                $sheet3->getStyle('A' . $row . ':D' . $row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
+                $row++;
+            }
+            
+            // Add total row
+            $totalSchoolUnrequited = $statusData->sum('school_unrequited');
+            $totalStudentUnrequited = $statusData->sum('student_unrequited');
+            $totalMutual = $statusData->sum('mutual');
+            $sheet3->setCellValue('A' . $row, '合計');
+            $sheet3->setCellValue('B' . $row, $totalSchoolUnrequited);
+            $sheet3->setCellValue('C' . $row, $totalStudentUnrequited);
+            $sheet3->setCellValue('D' . $row, $totalMutual);
+            $sheet3->getStyle('A' . $row . ':D' . $row)->applyFromArray($totalStyle);
+            $sheet3->getColumnDimension('A')->setAutoSize(true);
+            $sheet3->getColumnDimension('B')->setAutoSize(true);
+            $sheet3->getColumnDimension('C')->setAutoSize(true);
+            $sheet3->getColumnDimension('D')->setAutoSize(true);
 
-            // Auto-size columns
-            $sheet->getColumnDimension('A')->setAutoSize(true);
-            $sheet->getColumnDimension('B')->setAutoSize(true);
-            $sheet->getColumnDimension('C')->setAutoSize(true);
+            // Sheet 4: 合格者 (Successful Applicants)
+            $sheet4 = $spreadsheet->createSheet();
+            $sheet4->setTitle('合格者');
+            
+            // Set title
+            $sheet4->setCellValue('A1', '入試サマリー');
+            $sheet4->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+            
+            // Set subtitle
+            $sheet4->setCellValue('A2', '合格者一覧');
+            $sheet4->getStyle('A2')->getFont()->setBold(true)->setSize(14);
+            
+            // Set date
+            $sheet4->setCellValue('A3', $nextYear . '年度入学(' . $currentDate . '時点)');
+            
+            // Set headers
+            $sheet4->setCellValue('A4', '受験番号');
+            $sheet4->setCellValue('B4', '名前');
+            $sheet4->setCellValue('C4', '総合点数');
+            $sheet4->getStyle('A4:C4')->applyFromArray($headerStyle);
+            
+            // Add successful applicants data
+            $row = 5;
+            foreach ($successfulApplicants as $student) {
+                $sheet4->setCellValue('A' . $row, $student->student_number ?? '');
+                $sheet4->setCellValue('B' . $row, $student->name_english);
+                $sheet4->setCellValue('C' . $row, ''); // total_score field doesn't exist yet
+                $sheet4->getStyle('A' . $row . ':C' . $row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
+                $row++;
+            }
+            $sheet4->getColumnDimension('A')->setAutoSize(true);
+            $sheet4->getColumnDimension('B')->setAutoSize(true);
+            $sheet4->getColumnDimension('C')->setAutoSize(true);
+
+            // Sheet 5: 不合格者 (Unsuccessful Applicants)
+            $sheet5 = $spreadsheet->createSheet();
+            $sheet5->setTitle('不合格者');
+            
+            // Set title
+            $sheet5->setCellValue('A1', '入試サマリー');
+            $sheet5->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+            
+            // Set subtitle
+            $sheet5->setCellValue('A2', '不合格者一覧');
+            $sheet5->getStyle('A2')->getFont()->setBold(true)->setSize(14);
+            
+            // Set date
+            $sheet5->setCellValue('A3', $nextYear . '年度入学(' . $currentDate . '時点)');
+            
+            // Set headers
+            $sheet5->setCellValue('A4', '受験番号');
+            $sheet5->setCellValue('B4', '名前');
+            $sheet5->setCellValue('C4', '総合点数');
+            $sheet5->getStyle('A4:C4')->applyFromArray($headerStyle);
+            
+            // Add unsuccessful applicants data
+            $row = 5;
+            foreach ($unsuccessfulApplicants as $student) {
+                $sheet5->setCellValue('A' . $row, $student->student_number ?? '');
+                $sheet5->setCellValue('B' . $row, $student->name_english);
+                $sheet5->setCellValue('C' . $row, ''); // total_score field doesn't exist yet
+                $sheet5->getStyle('A' . $row . ':C' . $row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
+                $row++;
+            }
+            $sheet5->getColumnDimension('A')->setAutoSize(true);
+            $sheet5->getColumnDimension('B')->setAutoSize(true);
+            $sheet5->getColumnDimension('C')->setAutoSize(true);
+
+            // Set first sheet as active
+            $spreadsheet->setActiveSheetIndex(0);
 
             // Set response headers
             $filename = 'オープンキャンパスサマリー_' . date('Ymd') . '.xlsx';
@@ -463,7 +605,7 @@ class DashboardController extends Controller
                     fputcsv($handle, ['受験番号', '名前', '総合点数'], ',');
                     
                     foreach ($successfulApplicants as $student) {
-                        fputcsv($handle, [$student->student_number ?? '', $student->name_english, $student->total_score ?? ''], ',');
+                        fputcsv($handle, [$student->student_number ?? '', $student->name_english, ''], ',');
                     }
                     fputcsv($handle, [], ',');
                     fputcsv($handle, [], ',');
@@ -476,7 +618,7 @@ class DashboardController extends Controller
                     fputcsv($handle, ['受験番号', '名前', '総合点数'], ',');
                     
                     foreach ($unsuccessfulApplicants as $student) {
-                        fputcsv($handle, [$student->student_number ?? '', $student->name_english, $student->total_score ?? ''], ',');
+                        fputcsv($handle, [$student->student_number ?? '', $student->name_english, ''], ',');
                     }
                     
                     fclose($handle);

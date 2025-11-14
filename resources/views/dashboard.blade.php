@@ -3,15 +3,12 @@
 @section('title', 'ダッシュボード - AIWA FARM')
 
 @section('content')
-<h1 style="font-size: 28px; margin-bottom: 20px;">生徒検索</h1>
-
 <!-- Search Form (Always Visible) -->
 <div class="search-form" style="background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
     <form method="GET" action="{{ route('dashboard') }}" id="search-form">
         <!-- Basic Search Fields (Always Visible) -->
         <div style="margin-bottom: 15px;">
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="keyword">キーワード</label>
                 <input type="text" name="keyword" id="keyword" value="{{ request('keyword') }}" placeholder="キーワード" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
 
@@ -89,20 +86,20 @@
             </div>
 
             <!-- Input Fields -->
-            <div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="oc_reservation_date">OC予約日時</label>
-                    <input type="date" name="oc_reservation_date" id="oc_reservation_date" value="{{ request('oc_reservation_date') }}" placeholder="dd/mm/yyyy" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <div style="display: block;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="oc_reservation_date" style="display: block; margin-bottom: 5px;">OC予約日時</label>
+                    <input type="date" name="oc_reservation_date" id="oc_reservation_date" value="{{ request('oc_reservation_date') }}" placeholder="dd/mm/yyyy" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="name">名前</label>
-                    <input type="text" name="name" id="name" value="{{ request('name') }}" placeholder="名前" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="name" style="display: block; margin-bottom: 5px;">名前</label>
+                    <input type="text" name="name" id="name" value="{{ request('name') }}" placeholder="名前" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="nationality">国籍</label>
-                    <select name="nationality" id="nationality" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="nationality" style="display: block; margin-bottom: 5px;">国籍</label>
+                    <select name="nationality" id="nationality" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                         <option value="">選択してください</option>
                         @foreach($nationalities as $nat)
                             <option value="{{ $nat }}" {{ request('nationality') == $nat ? 'selected' : '' }}>{{ $nat }}</option>
@@ -110,9 +107,9 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="gender">性別</label>
-                    <select name="gender" id="gender" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="gender" style="display: block; margin-bottom: 5px;">性別</label>
+                    <select name="gender" id="gender" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                         <option value="">選択してください</option>
                         <option value="男" {{ request('gender') == '男' ? 'selected' : '' }}>男</option>
                         <option value="女" {{ request('gender') == '女' ? 'selected' : '' }}>女</option>
@@ -120,9 +117,9 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="jlpt_level">JLPT</label>
-                    <select name="jlpt_level" id="jlpt_level" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="jlpt_level" style="display: block; margin-bottom: 5px;">JLPT</label>
+                    <select name="jlpt_level" id="jlpt_level" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                         <option value="">選択してください</option>
                         <option value="N1" {{ request('jlpt_level') == 'N1' ? 'selected' : '' }}>N1</option>
                         <option value="N2" {{ request('jlpt_level') == 'N2' ? 'selected' : '' }}>N2</option>
@@ -132,9 +129,9 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="school_id">今の学校</label>
-                    <select name="school_id" id="school_id" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="school_id" style="display: block; margin-bottom: 5px;">今の学校</label>
+                    <select name="school_id" id="school_id" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                         <option value="">選択してください</option>
                         @foreach($schools as $school)
                             <option value="{{ $school->id }}" {{ request('school_id') == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
@@ -142,21 +139,21 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="japanese_evaluation">日本語・人物評価</label>
-                    <select name="japanese_evaluation" id="japanese_evaluation" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="japanese_evaluation" style="display: block; margin-bottom: 5px;">日本語・人物評価</label>
+                    <select name="japanese_evaluation" id="japanese_evaluation" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                         <option value="">選択してください</option>
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="total_score">総合点数</label>
-                    <input type="number" name="total_score" id="total_score" value="{{ request('total_score') }}" placeholder="総合点数" min="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="total_score" style="display: block; margin-bottom: 5px;">総合点数</label>
+                    <input type="number" name="total_score" id="total_score" value="{{ request('total_score') }}" placeholder="総合点数" min="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="referrer">紹介者</label>
-                    <select name="referrer" id="referrer" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="referrer" style="display: block; margin-bottom: 5px;">紹介者</label>
+                    <select name="referrer" id="referrer" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                         <option value="">選択してください</option>
                         @foreach($referrers as $ref)
                             <option value="{{ $ref }}" {{ request('referrer') == $ref ? 'selected' : '' }}>{{ $ref }}</option>
@@ -164,9 +161,9 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="student_number">受験番号 B-</label>
-                    <input type="text" name="student_number" id="student_number" value="{{ request('student_number') }}" placeholder="受験番号" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="form-group" style="margin-bottom: 15px; display: block; width: 100%;">
+                    <label for="student_number" style="display: block; margin-bottom: 5px;">受験番号 B-</label>
+                    <input type="text" name="student_number" id="student_number" value="{{ request('student_number') }}" placeholder="受験番号" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: block; box-sizing: border-box;">
                 </div>
             </div>
 
