@@ -231,11 +231,37 @@ class DashboardController extends Controller
         $totalAppliedSchool = $summaryBySchool->sum('applied_count');
         $totalParticipatedSchool = $summaryBySchool->sum('participated_count');
 
+        // Get additional data for other sheets
+        // Status sheet data (学校の片思い, 学生の片思い, 両想い)
+        $statusData = Student::select('schools.name as school_name')
+            ->selectRaw('SUM(CASE WHEN students.applied = 1 AND students.participated = 0 THEN 1 ELSE 0 END) as school_unrequited')
+            ->selectRaw('SUM(CASE WHEN students.applied = 0 AND students.participated = 1 THEN 1 ELSE 0 END) as student_unrequited')
+            ->selectRaw('SUM(CASE WHEN students.applied = 1 AND students.participated = 1 THEN 1 ELSE 0 END) as mutual')
+            ->leftJoin('schools', 'students.school_id', '=', 'schools.id')
+            ->groupBy('schools.name')
+            ->orderBy('schools.name', 'asc')
+            ->get();
+
+        // Successful applicants (合格者)
+        $successfulApplicants = Student::whereIn('status', ['1年合格', '2年合格'])
+            ->select('student_number', 'name_english')
+            ->orderBy('name_english', 'asc')
+            ->get();
+
+        // Unsuccessful applicants (不合格者)
+        $unsuccessfulApplicants = Student::where('status', '不合格')
+            ->select('student_number', 'name_english')
+            ->orderBy('name_english', 'asc')
+            ->get();
+
         // Check if PhpSpreadsheet is available
         if (class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet')) {
-            // Use Excel export
+            // Use Excel export with multiple sheets
             $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            
+            // Sheet 1: 国籍別 (By Nationality)
             $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('国籍別');
 
             // Set title
             $sheet->setCellValue('A1', 'オープンキャンパスサマリー');
@@ -371,20 +397,18 @@ class DashboardController extends Controller
             );
         } else {
             // Fallback to CSV export (no external dependencies)
+            // Note: CSV doesn't support multiple sheets, so we'll create a combined CSV
             $filename = 'オープンキャンパスサマリー_' . date('Ymd') . '.csv';
             
             return new StreamedResponse(
-                function () use ($summaryByNationality, $summaryBySchool, $totalApplied, $totalParticipated, $totalAppliedSchool, $totalParticipatedSchool, $nextYear, $currentDate) {
+                function () use ($summaryByNationality, $summaryBySchool, $statusData, $successfulApplicants, $unsuccessfulApplicants, $totalApplied, $totalParticipated, $totalAppliedSchool, $totalParticipatedSchool, $nextYear, $currentDate) {
                     $handle = fopen('php://output', 'w');
                     
                     // Add BOM for Excel UTF-8 support
                     fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
                     
-                    // Title
+                    // Sheet 1: 国籍別
                     fputcsv($handle, ['オープンキャンパスサマリー'], ',');
-                    fputcsv($handle, [], ',');
-                    
-                    // Nationality section
                     fputcsv($handle, ['国籍別'], ',');
                     fputcsv($handle, [$nextYear . '年度入学 (' . $currentDate . '時点)'], ',');
                     fputcsv($handle, [], ',');
@@ -398,15 +422,62 @@ class DashboardController extends Controller
                     fputcsv($handle, [], ',');
                     fputcsv($handle, [], ',');
                     
-                    // School section
+                    // Sheet 2: 学校別
+                    fputcsv($handle, ['オープンキャンパスサマリー'], ',');
                     fputcsv($handle, ['学校別'], ',');
-                    fputcsv($handle, ['学校', '申込人数', '参加人数'], ',');
+                    fputcsv($handle, [$nextYear . '年度入学 (' . $currentDate . '時点)'], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, ['学校名', '申込人数', '参加人数'], ',');
                     
                     foreach ($summaryBySchool as $item) {
                         fputcsv($handle, [$item->school_name ?? '学校未設定', $item->applied_count, $item->participated_count], ',');
                     }
                     
                     fputcsv($handle, ['合計', $totalAppliedSchool, $totalParticipatedSchool], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, [], ',');
+                    
+                    // Sheet 3: 状況
+                    fputcsv($handle, ['オープンキャンパスサマリー'], ',');
+                    fputcsv($handle, ['状況'], ',');
+                    fputcsv($handle, [$nextYear . '年度入学(' . $currentDate . '時点)'], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, ['学校名', '学校の片思い', '学生の片思い', '両想い'], ',');
+                    
+                    foreach ($statusData as $item) {
+                        fputcsv($handle, [$item->school_name ?? '学校未設定', $item->school_unrequited, $item->student_unrequited, $item->mutual], ',');
+                    }
+                    
+                    $totalSchoolUnrequited = $statusData->sum('school_unrequited');
+                    $totalStudentUnrequited = $statusData->sum('student_unrequited');
+                    $totalMutual = $statusData->sum('mutual');
+                    fputcsv($handle, ['合計', $totalSchoolUnrequited, $totalStudentUnrequited, $totalMutual], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, [], ',');
+                    
+                    // Sheet 4: 合格者
+                    fputcsv($handle, ['入試サマリー'], ',');
+                    fputcsv($handle, ['合格者一覧'], ',');
+                    fputcsv($handle, [$nextYear . '年度入学(' . $currentDate . '時点)'], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, ['受験番号', '名前', '総合点数'], ',');
+                    
+                    foreach ($successfulApplicants as $student) {
+                        fputcsv($handle, [$student->student_number ?? '', $student->name_english, $student->total_score ?? ''], ',');
+                    }
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, [], ',');
+                    
+                    // Sheet 5: 不合格者
+                    fputcsv($handle, ['入試サマリー'], ',');
+                    fputcsv($handle, ['不合格者一覧'], ',');
+                    fputcsv($handle, [$nextYear . '年度入学(' . $currentDate . '時点)'], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, ['受験番号', '名前', '総合点数'], ',');
+                    
+                    foreach ($unsuccessfulApplicants as $student) {
+                        fputcsv($handle, [$student->student_number ?? '', $student->name_english, $student->total_score ?? ''], ',');
+                    }
                     
                     fclose($handle);
                 },

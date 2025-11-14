@@ -89,18 +89,18 @@
             </div>
 
             <!-- Input Fields -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                <div class="form-group">
+            <div>
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="oc_reservation_date">OC予約日時</label>
                     <input type="date" name="oc_reservation_date" id="oc_reservation_date" value="{{ request('oc_reservation_date') }}" placeholder="dd/mm/yyyy" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="name">名前</label>
                     <input type="text" name="name" id="name" value="{{ request('name') }}" placeholder="名前" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="nationality">国籍</label>
                     <select name="nationality" id="nationality" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
@@ -110,7 +110,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="gender">性別</label>
                     <select name="gender" id="gender" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
@@ -120,7 +120,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="jlpt_level">JLPT</label>
                     <select name="jlpt_level" id="jlpt_level" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
@@ -132,7 +132,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="school_id">今の学校</label>
                     <select name="school_id" id="school_id" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
@@ -142,19 +142,19 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="japanese_evaluation">日本語・人物評価</label>
                     <select name="japanese_evaluation" id="japanese_evaluation" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="total_score">総合点数</label>
                     <input type="number" name="total_score" id="total_score" value="{{ request('total_score') }}" placeholder="総合点数" min="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="referrer">紹介者</label>
                     <select name="referrer" id="referrer" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
@@ -164,7 +164,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="student_number">受験番号 B-</label>
                     <input type="text" name="student_number" id="student_number" value="{{ request('student_number') }}" placeholder="受験番号" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
