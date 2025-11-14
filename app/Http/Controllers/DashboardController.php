@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\School;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -139,6 +140,25 @@ class DashboardController extends Controller
         $appliedCount = Student::where('applied', true)->count();
         $participatedCount = Student::where('participated', true)->count();
 
+        // Summary by Nationality
+        $summaryByNationality = Student::select('nationality')
+            ->selectRaw('COUNT(*) as applied_count')
+            ->selectRaw('SUM(CASE WHEN participated = 1 THEN 1 ELSE 0 END) as participated_count')
+            ->where('applied', true)
+            ->groupBy('nationality')
+            ->orderBy('nationality', 'asc')
+            ->get();
+
+        // Summary by School
+        $summaryBySchool = Student::select('schools.name as school_name')
+            ->selectRaw('COUNT(*) as applied_count')
+            ->selectRaw('SUM(CASE WHEN students.participated = 1 THEN 1 ELSE 0 END) as participated_count')
+            ->leftJoin('schools', 'students.school_id', '=', 'schools.id')
+            ->where('students.applied', true)
+            ->groupBy('schools.name')
+            ->orderBy('schools.name', 'asc')
+            ->get();
+
         // Enrollment years for dropdown
         $enrollmentYears = Student::select('enrollment_year')
             ->distinct()
@@ -168,6 +188,6 @@ class DashboardController extends Controller
 
         $schools = School::orderBy('name', 'asc')->get();
 
-        return view('dashboard', compact('students', 'appliedCount', 'participatedCount', 'enrollmentYears', 'nationalities', 'referrers', 'schools'));
+        return view('dashboard', compact('students', 'appliedCount', 'participatedCount', 'enrollmentYears', 'nationalities', 'referrers', 'schools', 'summaryByNationality', 'summaryBySchool'));
     }
 }

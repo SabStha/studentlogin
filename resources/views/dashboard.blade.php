@@ -5,17 +5,21 @@
 @section('content')
 <h1 style="font-size: 28px; margin-bottom: 20px;">生徒検索</h1>
 
-<div class="search-form">
+<!-- Search Button Bar -->
+<div style="background-color: #0066cc; padding: 12px; margin-bottom: 20px; text-align: center; border-radius: 4px;">
+    <button type="button" id="toggle-search" style="background: none; border: none; color: white; font-size: 16px; cursor: pointer; font-weight: bold;">検索</button>
+</div>
+
+<!-- Search Form (Initially Hidden) -->
+<div id="search-form-container" style="display: none; background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
     <form method="GET" action="{{ route('dashboard') }}" id="search-form">
-        <!-- Detailed Search Toggle Button -->
-        <div style="margin-bottom: 15px;">
-            <button type="button" id="toggle-detailed-search" class="btn btn-primary" style="background-color: #0066cc; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-                詳細検索
-            </button>
+        <!-- Detailed Search Header -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 id="toggle-detailed-search" style="color: #0066cc; text-decoration: underline; cursor: pointer; font-size: 18px; margin: 0; display: inline-block;">詳細検索</h2>
         </div>
 
         <!-- Detailed Search Section (Initially Hidden) -->
-        <div id="detailed-search" style="display: none; background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
+        <div id="detailed-search" style="display: none; margin-bottom: 20px;">
             <!-- Checkbox Filters -->
             <div style="margin-bottom: 20px;">
                 <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
@@ -64,17 +68,17 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                 <div class="form-group">
                     <label for="oc_reservation_date">OC予約日時</label>
-                    <input type="date" name="oc_reservation_date" id="oc_reservation_date" value="{{ request('oc_reservation_date') }}" placeholder="dd/mm/yyyy">
+                    <input type="date" name="oc_reservation_date" id="oc_reservation_date" value="{{ request('oc_reservation_date') }}" placeholder="dd/mm/yyyy" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
 
                 <div class="form-group">
                     <label for="name">名前</label>
-                    <input type="text" name="name" id="name" value="{{ request('name') }}" placeholder="名前">
+                    <input type="text" name="name" id="name" value="{{ request('name') }}" placeholder="名前" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
 
                 <div class="form-group">
                     <label for="nationality">国籍</label>
-                    <select name="nationality" id="nationality">
+                    <select name="nationality" id="nationality" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
                         @foreach($nationalities as $nat)
                             <option value="{{ $nat }}" {{ request('nationality') == $nat ? 'selected' : '' }}>{{ $nat }}</option>
@@ -84,7 +88,7 @@
 
                 <div class="form-group">
                     <label for="gender">性別</label>
-                    <select name="gender" id="gender">
+                    <select name="gender" id="gender" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
                         <option value="男" {{ request('gender') == '男' ? 'selected' : '' }}>男</option>
                         <option value="女" {{ request('gender') == '女' ? 'selected' : '' }}>女</option>
@@ -94,7 +98,7 @@
 
                 <div class="form-group">
                     <label for="jlpt_level">JLPT</label>
-                    <select name="jlpt_level" id="jlpt_level">
+                    <select name="jlpt_level" id="jlpt_level" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
                         <option value="N1" {{ request('jlpt_level') == 'N1' ? 'selected' : '' }}>N1</option>
                         <option value="N2" {{ request('jlpt_level') == 'N2' ? 'selected' : '' }}>N2</option>
@@ -106,7 +110,7 @@
 
                 <div class="form-group">
                     <label for="school_id">今の学校</label>
-                    <select name="school_id" id="school_id">
+                    <select name="school_id" id="school_id" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
                         @foreach($schools as $school)
                             <option value="{{ $school->id }}" {{ request('school_id') == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
@@ -116,17 +120,19 @@
 
                 <div class="form-group">
                     <label for="japanese_evaluation">日本語・人物評価</label>
-                    <input type="text" name="japanese_evaluation" id="japanese_evaluation" value="{{ request('japanese_evaluation') }}" placeholder="日本語・人物評価">
+                    <select name="japanese_evaluation" id="japanese_evaluation" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="">選択してください</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label for="total_score">総合点数</label>
-                    <input type="number" name="total_score" id="total_score" value="{{ request('total_score') }}" placeholder="総合点数" min="0">
+                    <input type="number" name="total_score" id="total_score" value="{{ request('total_score') }}" placeholder="総合点数" min="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
 
                 <div class="form-group">
                     <label for="referrer">紹介者</label>
-                    <select name="referrer" id="referrer">
+                    <select name="referrer" id="referrer" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="">選択してください</option>
                         @foreach($referrers as $ref)
                             <option value="{{ $ref }}" {{ request('referrer') == $ref ? 'selected' : '' }}>{{ $ref }}</option>
@@ -136,7 +142,7 @@
 
                 <div class="form-group">
                     <label for="student_number">受験番号 B-</label>
-                    <input type="text" name="student_number" id="student_number" value="{{ request('student_number') }}" placeholder="受験番号">
+                    <input type="text" name="student_number" id="student_number" value="{{ request('student_number') }}" placeholder="受験番号" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
             </div>
 
@@ -148,15 +154,15 @@
         </div>
 
         <!-- Basic Search Fields -->
-        <div class="form-group">
-            <label for="keyword">キーワード</label>
-            <input type="text" name="keyword" id="keyword" value="{{ request('keyword') }}" placeholder="キーワード">
-        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+            <div class="form-group">
+                <label for="keyword">キーワード</label>
+                <input type="text" name="keyword" id="keyword" value="{{ request('keyword') }}" placeholder="キーワード" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
 
-        <div class="form-row">
             <div class="form-group">
                 <label for="enrollment_year">入学年度</label>
-                <select name="enrollment_year" id="enrollment_year">
+                <select name="enrollment_year" id="enrollment_year" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="">選択してください</option>
                     @foreach($enrollmentYears as $year)
                         <option value="{{ $year }}" {{ request('enrollment_year') == $year ? 'selected' : '' }}>{{ $year }}年</option>
@@ -166,7 +172,7 @@
 
             <div class="form-group">
                 <label for="status">ステータス</label>
-                <select name="status" id="status">
+                <select name="status" id="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="">すべて</option>
                     <option value="2年合格" {{ request('status') == '2年合格' ? 'selected' : '' }}>2年合格</option>
                     <option value="1年合格" {{ request('status') == '1年合格' ? 'selected' : '' }}>1年合格</option>
@@ -174,39 +180,103 @@
                     <option value="試験待ち" {{ request('status') == '試験待ち' ? 'selected' : '' }}>試験待ち</option>
                 </select>
             </div>
+        </div>
 
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">検索</button>
-            </div>
+        <div style="text-align: center;">
+            <button type="submit" class="btn btn-primary" style="background-color: #0066cc; color: white; border: none; padding: 12px 40px; border-radius: 4px; cursor: pointer; font-size: 16px;">検索</button>
         </div>
     </form>
 </div>
 
+<!-- Summary Section -->
+<div style="background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 24px; margin: 0;">サマリー</h2>
+        <button type="button" id="download-summary" class="btn" style="background-color: #ff69b4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">サマリーダウンロード</button>
+    </div>
+
+    <!-- Summary by Nationality -->
+    <div style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; margin-bottom: 10px;">国籍別</h3>
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">国籍</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">申込</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">参加</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($summaryByNationality as $item)
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ $item->nationality }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ $item->applied_count }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ $item->participated_count }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #999;">データがありません</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary by School -->
+    <div>
+        <h3 style="font-size: 18px; margin-bottom: 10px;">学校別</h3>
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">学校</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">申込</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">参加</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($summaryBySchool as $item)
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">{{ $item->school_name ?? '学校未設定' }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ $item->applied_count }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ $item->participated_count }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="3" style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #999;">データがありません</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Status Legend and Statistics -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
-    <div class="legend">
-        <div class="legend-item">
-            <span class="status-badge status-2year">✓</span>
+    <div class="legend" style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div class="legend-item" style="display: flex; align-items: center; gap: 5px;">
+            <span class="status-badge status-2year" style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: #0066cc; color: white; text-align: center; line-height: 20px; font-size: 12px;">✓</span>
             <span>2年合格</span>
         </div>
-        <div class="legend-item">
-            <span class="status-badge status-1year">✓</span>
+        <div class="legend-item" style="display: flex; align-items: center; gap: 5px;">
+            <span class="status-badge status-1year" style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: #28a745; color: white; text-align: center; line-height: 20px; font-size: 12px;">✓</span>
             <span>1年合格</span>
         </div>
-        <div class="legend-item">
-            <span class="status-badge status-fail">✗</span>
+        <div class="legend-item" style="display: flex; align-items: center; gap: 5px;">
+            <span class="status-badge status-fail" style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: #dc3545; color: white; text-align: center; line-height: 20px; font-size: 12px;">✗</span>
             <span>不合格</span>
         </div>
-        <div class="legend-item">
-            <span class="status-badge status-waiting">✗</span>
+        <div class="legend-item" style="display: flex; align-items: center; gap: 5px;">
+            <span class="status-badge status-waiting" style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: #ffc107; color: white; text-align: center; line-height: 20px; font-size: 12px;">✗</span>
             <span>試験待ち</span>
         </div>
     </div>
 
     <div class="statistics">
-        <div class="stat-item">申込: {{ $appliedCount }}人 参加: {{ $participatedCount }}人</div>
+        <div class="stat-item" style="font-size: 14px;">申込：{{ $appliedCount }}人 参加：{{ $participatedCount }}人</div>
     </div>
 </div>
 
+<!-- Student Cards Grid -->
 <div class="grid">
     @forelse($students as $student)
         <div class="student-card">
@@ -243,6 +313,16 @@
 </div>
 
 <script>
+// Toggle search form
+document.getElementById('toggle-search').addEventListener('click', function() {
+    const searchForm = document.getElementById('search-form-container');
+    if (searchForm.style.display === 'none') {
+        searchForm.style.display = 'block';
+    } else {
+        searchForm.style.display = 'none';
+    }
+});
+
 // Toggle detailed search
 document.getElementById('toggle-detailed-search').addEventListener('click', function() {
     const detailedSearch = document.getElementById('detailed-search');
@@ -253,9 +333,18 @@ document.getElementById('toggle-detailed-search').addEventListener('click', func
     }
 });
 
-// Show detailed search if any detailed search field has a value
-@if(request()->hasAny(['oc_reservation_date', 'name', 'nationality', 'gender', 'jlpt_level', 'school_id', 'japanese_evaluation', 'total_score', 'referrer', 'student_number', 'sort_by_name', 'nationality_empty', 'school_empty', 'absent_only', 'applicants_only', 'status_2year', 'status_1year', 'status_fail', 'status_waiting']))
-    document.getElementById('detailed-search').style.display = 'block';
+// Show search form if any search parameters exist
+@if(request()->hasAny(['keyword', 'enrollment_year', 'status', 'oc_reservation_date', 'name', 'nationality', 'gender', 'jlpt_level', 'school_id', 'japanese_evaluation', 'total_score', 'referrer', 'student_number', 'sort_by_name', 'nationality_empty', 'school_empty', 'absent_only', 'applicants_only', 'status_2year', 'status_1year', 'status_fail', 'status_waiting']))
+    document.getElementById('search-form-container').style.display = 'block';
+    @if(request()->hasAny(['oc_reservation_date', 'name', 'nationality', 'gender', 'jlpt_level', 'school_id', 'japanese_evaluation', 'total_score', 'referrer', 'student_number', 'sort_by_name', 'nationality_empty', 'school_empty', 'absent_only', 'applicants_only', 'status_2year', 'status_1year', 'status_fail', 'status_waiting']))
+        document.getElementById('detailed-search').style.display = 'block';
+    @endif
 @endif
+
+// Summary download
+document.getElementById('download-summary').addEventListener('click', function() {
+    // TODO: Implement summary download functionality
+    alert('サマリーダウンロード機能は実装中です。');
+});
 </script>
 @endsection
