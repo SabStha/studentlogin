@@ -45,6 +45,11 @@ class DashboardController extends Controller
             ->whereNotNull('enrollment_year')
             ->orderBy('enrollment_year', 'desc')
             ->pluck('enrollment_year');
+        
+        // Always include 2026 if it doesn't exist
+        if (!$enrollmentYears->contains(2026)) {
+            $enrollmentYears = $enrollmentYears->push(2026)->sortDesc()->values();
+        }
 
         return view('dashboard', compact('students', 'appliedCount', 'participatedCount', 'enrollmentYears'));
     }
