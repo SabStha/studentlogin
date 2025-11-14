@@ -15,6 +15,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard/download-summary', [DashboardController::class, 'downloadSummary'])->name('dashboard.download-summary');
 
     // Student Routes
     Route::resource('students', StudentController::class);

@@ -343,8 +343,7 @@ document.getElementById('toggle-detailed-search').addEventListener('click', func
 
 // Summary download
 document.getElementById('download-summary').addEventListener('click', function() {
-    // TODO: Implement summary download functionality
-    alert('サマリーダウンロード機能は実装中です。');
+    window.location.href = '{{ route("dashboard.download-summary") }}';
 });
 </script>
 @endsection
