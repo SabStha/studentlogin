@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('age');
             $table->string('email');
             $table->string('jlpt_level')->nullable();
-            $table->foreignId('school_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('school_id')->nullable()->constrained('schools')->onDelete('set null');
             $table->string('student_number')->nullable();
             $table->text('home_country_education')->nullable();
             $table->string('referrer')->nullable();
@@ -34,7 +34,9 @@ return new class extends Migration
 
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('students');
+        Schema::enableForeignKeyConstraints();
     }
 };
 
