@@ -6,12 +6,8 @@ use App\Models\Student;
 use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Border;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DashboardController extends Controller
 {
@@ -232,144 +228,195 @@ class DashboardController extends Controller
         // Calculate totals
         $totalApplied = $summaryByNationality->sum('applied_count');
         $totalParticipated = $summaryByNationality->sum('participated_count');
-
-        // Create new Spreadsheet
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Set title
-        $sheet->setCellValue('A1', 'オープンキャンパスサマリー');
-        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
-
-        // Set subtitle for nationality
-        $sheet->setCellValue('A2', '国籍別');
-        $sheet->getStyle('A2')->getFont()->setBold(true);
-
-        // Set date
-        $sheet->setCellValue('A3', $nextYear . '年度入学 (' . $currentDate . '時点)');
-
-        // Set headers for nationality table
-        $sheet->setCellValue('A4', '国籍');
-        $sheet->setCellValue('B4', '申込人数');
-        $sheet->setCellValue('C4', '参加人数');
-        
-        // Style headers
-        $headerStyle = [
-            'font' => ['bold' => true],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => 'E0E0E0']
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                ],
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-            ],
-        ];
-        $sheet->getStyle('A4:C4')->applyFromArray($headerStyle);
-
-        // Add nationality data
-        $row = 5;
-        foreach ($summaryByNationality as $item) {
-            $sheet->setCellValue('A' . $row, $item->nationality);
-            $sheet->setCellValue('B' . $row, $item->applied_count);
-            $sheet->setCellValue('C' . $row, $item->participated_count);
-            
-            // Add borders
-            $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray([
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                    ],
-                ],
-            ]);
-            $row++;
-        }
-
-        // Add total row
-        $sheet->setCellValue('A' . $row, '合計');
-        $sheet->setCellValue('B' . $row, $totalApplied);
-        $sheet->setCellValue('C' . $row, $totalParticipated);
-        
-        // Style total row
-        $totalStyle = [
-            'font' => ['bold' => true],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => 'F0F0F0']
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                ],
-            ],
-        ];
-        $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($totalStyle);
-
-        // Add spacing
-        $row += 2;
-
-        // Set subtitle for school
-        $sheet->setCellValue('A' . $row, '学校別');
-        $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-        $row++;
-
-        // Set headers for school table
-        $sheet->setCellValue('A' . $row, '学校');
-        $sheet->setCellValue('B' . $row, '申込人数');
-        $sheet->setCellValue('C' . $row, '参加人数');
-        
-        // Style headers
-        $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($headerStyle);
-        $row++;
-
-        // Add school data
-        foreach ($summaryBySchool as $item) {
-            $sheet->setCellValue('A' . $row, $item->school_name ?? '学校未設定');
-            $sheet->setCellValue('B' . $row, $item->applied_count);
-            $sheet->setCellValue('C' . $row, $item->participated_count);
-            
-            // Add borders
-            $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray([
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                    ],
-                ],
-            ]);
-            $row++;
-        }
-
-        // Add total row for school
         $totalAppliedSchool = $summaryBySchool->sum('applied_count');
         $totalParticipatedSchool = $summaryBySchool->sum('participated_count');
-        $sheet->setCellValue('A' . $row, '合計');
-        $sheet->setCellValue('B' . $row, $totalAppliedSchool);
-        $sheet->setCellValue('C' . $row, $totalParticipatedSchool);
-        $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($totalStyle);
 
-        // Auto-size columns
-        $sheet->getColumnDimension('A')->setAutoSize(true);
-        $sheet->getColumnDimension('B')->setAutoSize(true);
-        $sheet->getColumnDimension('C')->setAutoSize(true);
+        // Check if PhpSpreadsheet is available
+        if (class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet')) {
+            // Use Excel export
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
 
-        // Set response headers
-        $filename = 'オープンキャンパスサマリー_' . date('Ymd') . '.xlsx';
-        
-        return new StreamedResponse(
-            function () use ($spreadsheet) {
-                $writer = new Xlsx($spreadsheet);
-                $writer->save('php://output');
-            },
-            200,
-            [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-                'Cache-Control' => 'max-age=0',
-            ]
-        );
+            // Set title
+            $sheet->setCellValue('A1', 'オープンキャンパスサマリー');
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+
+            // Set subtitle for nationality
+            $sheet->setCellValue('A2', '国籍別');
+            $sheet->getStyle('A2')->getFont()->setBold(true);
+
+            // Set date
+            $sheet->setCellValue('A3', $nextYear . '年度入学 (' . $currentDate . '時点)');
+
+            // Set headers for nationality table
+            $sheet->setCellValue('A4', '国籍');
+            $sheet->setCellValue('B4', '申込人数');
+            $sheet->setCellValue('C4', '参加人数');
+            
+            // Style headers
+            $headerStyle = [
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'E0E0E0']
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ];
+            $sheet->getStyle('A4:C4')->applyFromArray($headerStyle);
+
+            // Add nationality data
+            $row = 5;
+            foreach ($summaryByNationality as $item) {
+                $sheet->setCellValue('A' . $row, $item->nationality);
+                $sheet->setCellValue('B' . $row, $item->applied_count);
+                $sheet->setCellValue('C' . $row, $item->participated_count);
+                
+                // Add borders
+                $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
+                $row++;
+            }
+
+            // Add total row
+            $sheet->setCellValue('A' . $row, '合計');
+            $sheet->setCellValue('B' . $row, $totalApplied);
+            $sheet->setCellValue('C' . $row, $totalParticipated);
+            
+            // Style total row
+            $totalStyle = [
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'F0F0F0']
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ];
+            $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($totalStyle);
+
+            // Add spacing
+            $row += 2;
+
+            // Set subtitle for school
+            $sheet->setCellValue('A' . $row, '学校別');
+            $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+            $row++;
+
+            // Set headers for school table
+            $sheet->setCellValue('A' . $row, '学校');
+            $sheet->setCellValue('B' . $row, '申込人数');
+            $sheet->setCellValue('C' . $row, '参加人数');
+            
+            // Style headers
+            $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($headerStyle);
+            $row++;
+
+            // Add school data
+            foreach ($summaryBySchool as $item) {
+                $sheet->setCellValue('A' . $row, $item->school_name ?? '学校未設定');
+                $sheet->setCellValue('B' . $row, $item->applied_count);
+                $sheet->setCellValue('C' . $row, $item->participated_count);
+                
+                // Add borders
+                $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
+                $row++;
+            }
+
+            // Add total row for school
+            $sheet->setCellValue('A' . $row, '合計');
+            $sheet->setCellValue('B' . $row, $totalAppliedSchool);
+            $sheet->setCellValue('C' . $row, $totalParticipatedSchool);
+            $sheet->getStyle('A' . $row . ':C' . $row)->applyFromArray($totalStyle);
+
+            // Auto-size columns
+            $sheet->getColumnDimension('A')->setAutoSize(true);
+            $sheet->getColumnDimension('B')->setAutoSize(true);
+            $sheet->getColumnDimension('C')->setAutoSize(true);
+
+            // Set response headers
+            $filename = 'オープンキャンパスサマリー_' . date('Ymd') . '.xlsx';
+            
+            return new StreamedResponse(
+                function () use ($spreadsheet) {
+                    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+                    $writer->save('php://output');
+                },
+                200,
+                [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                    'Cache-Control' => 'max-age=0',
+                ]
+            );
+        } else {
+            // Fallback to CSV export (no external dependencies)
+            $filename = 'オープンキャンパスサマリー_' . date('Ymd') . '.csv';
+            
+            return new StreamedResponse(
+                function () use ($summaryByNationality, $summaryBySchool, $totalApplied, $totalParticipated, $totalAppliedSchool, $totalParticipatedSchool, $nextYear, $currentDate) {
+                    $handle = fopen('php://output', 'w');
+                    
+                    // Add BOM for Excel UTF-8 support
+                    fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+                    
+                    // Title
+                    fputcsv($handle, ['オープンキャンパスサマリー'], ',');
+                    fputcsv($handle, [], ',');
+                    
+                    // Nationality section
+                    fputcsv($handle, ['国籍別'], ',');
+                    fputcsv($handle, [$nextYear . '年度入学 (' . $currentDate . '時点)'], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, ['国籍', '申込人数', '参加人数'], ',');
+                    
+                    foreach ($summaryByNationality as $item) {
+                        fputcsv($handle, [$item->nationality, $item->applied_count, $item->participated_count], ',');
+                    }
+                    
+                    fputcsv($handle, ['合計', $totalApplied, $totalParticipated], ',');
+                    fputcsv($handle, [], ',');
+                    fputcsv($handle, [], ',');
+                    
+                    // School section
+                    fputcsv($handle, ['学校別'], ',');
+                    fputcsv($handle, ['学校', '申込人数', '参加人数'], ',');
+                    
+                    foreach ($summaryBySchool as $item) {
+                        fputcsv($handle, [$item->school_name ?? '学校未設定', $item->applied_count, $item->participated_count], ',');
+                    }
+                    
+                    fputcsv($handle, ['合計', $totalAppliedSchool, $totalParticipatedSchool], ',');
+                    
+                    fclose($handle);
+                },
+                200,
+                [
+                    'Content-Type' => 'text/csv; charset=UTF-8',
+                    'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                    'Cache-Control' => 'max-age=0',
+                ]
+            );
+        }
     }
 }

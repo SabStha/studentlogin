@@ -9,13 +9,13 @@
 <div class="search-form" style="background-color: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ddd;">
     <form method="GET" action="{{ route('dashboard') }}" id="search-form">
         <!-- Basic Search Fields (Always Visible) -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
-            <div class="form-group">
+        <div style="margin-bottom: 15px;">
+            <div class="form-group" style="margin-bottom: 15px;">
                 <label for="keyword">キーワード</label>
                 <input type="text" name="keyword" id="keyword" value="{{ request('keyword') }}" placeholder="キーワード" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 15px;">
                 <label for="enrollment_year">入学年度</label>
                 <select name="enrollment_year" id="enrollment_year" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="">選択してください</option>
@@ -25,7 +25,7 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 15px;">
                 <label for="status">ステータス</label>
                 <select name="status" id="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="">すべて</option>
